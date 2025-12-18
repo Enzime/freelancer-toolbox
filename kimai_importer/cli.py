@@ -15,14 +15,6 @@ def parse_args() -> argparse.Namespace:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    # Input format
-    parser.add_argument(
-        "--format",
-        required=True,
-        choices=("harvest-json",),
-        help="Input format (harvest-json: from harvest-exporter --format json --no-aggregate)",
-    )
-
     # Kimai credentials
     token = os.environ.get("KIMAI_API_KEY")
     parser.add_argument(
