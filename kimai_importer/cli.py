@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""CLI for importing time entries to Kimai."""
 
 import argparse
 import json
@@ -12,10 +11,8 @@ from . import HarvestKimaiImporter
 
 
 def parse_args() -> argparse.Namespace:
-    """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="Import time entries to Kimai (reads from stdin)",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     # Input format
@@ -23,24 +20,23 @@ def parse_args() -> argparse.Namespace:
         "--format",
         required=True,
         choices=("harvest-json",),
-        help="Input format (harvest-json: raw JSON from harvest-exporter --format raw-json)",
+        help="Input format (harvest-json: from harvest-exporter --format json --no-aggregate)",
     )
 
     # Kimai credentials
-    kimai_url = os.environ.get("KIMAI_API_URL")
-    parser.add_argument(
-        "--kimai-api-url",
-        default=kimai_url,
-        required=kimai_url is None,
-        help="Kimai API URL (env: KIMAI_API_URL)",
-    )
-
-    kimai_token = os.environ.get("KIMAI_API_KEY")
+    token = os.environ.get("KIMAI_API_KEY")
     parser.add_argument(
         "--kimai-api-key",
-        default=kimai_token,
-        required=kimai_token is None,
+        default=token,
+        required=token is None,
         help="Kimai API key (env: KIMAI_API_KEY)",
+    )
+    api_url = os.environ.get("KIMAI_API_URL")
+    parser.add_argument(
+        "--api-url",
+        default=api_url,
+        required=api_url is None,
+        help="Kimai API URL (env: KIMAI_API_URL)",
     )
 
     # Import options
@@ -64,7 +60,6 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    """Main entry point for the CLI."""
     args = parse_args()
 
     # Read entries from stdin
@@ -85,7 +80,7 @@ def main() -> None:
     print("Connecting to Kimai...", file=sys.stderr)
     kimai_api = KimaiAPI(
         access_token=args.kimai_api_key,
-        api_url=args.kimai_api_url,
+        api_url=args.api_url,
     )
 
     # Create importer

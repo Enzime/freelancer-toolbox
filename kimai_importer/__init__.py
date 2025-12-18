@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Import time entries from Harvest to Kimai."""
 
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -11,8 +10,6 @@ from kimai.data import ActivityInfo, CustomerInfo, ProjectInfo
 
 @dataclass
 class ImportStats:
-    """Statistics for the import operation."""
-
     entries_processed: int = 0
     entries_created: int = 0
     entries_skipped: int = 0
@@ -24,8 +21,6 @@ class ImportStats:
 
 @dataclass
 class HarvestKimaiImporter:
-    """Import time entries from Harvest to Kimai."""
-
     kimai_api: KimaiAPI
     default_country: str = "DE"
     default_currency: str = "EUR"
@@ -37,11 +32,9 @@ class HarvestKimaiImporter:
     _activity_cache: dict[str, ActivityInfo] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        """Initialize caches from Kimai."""
         self._load_existing_entities()
 
     def _load_existing_entities(self) -> None:
-        """Load existing customers, projects, and activities from Kimai."""
         # Load customers
         for customer in self.kimai_api.get_customers():
             self._customer_cache[customer.name.lower()] = customer
@@ -62,7 +55,6 @@ class HarvestKimaiImporter:
     def get_or_create_customer(
         self, name: str, stats: ImportStats
     ) -> CustomerInfo:
-        """Get existing customer or create a new one."""
         key = name.lower()
         if key in self._customer_cache:
             return self._customer_cache[key]
@@ -111,7 +103,6 @@ class HarvestKimaiImporter:
     def get_or_create_project(
         self, name: str, customer_id: int, stats: ImportStats
     ) -> ProjectInfo:
-        """Get existing project or create a new one."""
         key = f"{customer_id}:{name.lower()}"
         if key in self._project_cache:
             return self._project_cache[key]
@@ -149,7 +140,6 @@ class HarvestKimaiImporter:
     def get_or_create_activity(
         self, name: str, project_id: int | None, stats: ImportStats
     ) -> ActivityInfo:
-        """Get existing activity or create a new one."""
         project_key = project_id if project_id else "global"
         key = f"{project_key}:{name.lower()}"
         if key in self._activity_cache:
@@ -193,10 +183,6 @@ class HarvestKimaiImporter:
     def import_entry(
         self, entry: dict[str, Any], stats: ImportStats
     ) -> bool:
-        """Import a single Harvest time entry to Kimai.
-
-        Returns True if entry was created, False if skipped.
-        """
         stats.entries_processed += 1
 
         # Extract Harvest data
@@ -258,7 +244,6 @@ class HarvestKimaiImporter:
     def import_entries(
         self, entries: list[dict[str, Any]]
     ) -> ImportStats:
-        """Import multiple Harvest time entries to Kimai."""
         stats = ImportStats()
 
         for entry in entries:
