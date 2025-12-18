@@ -2,6 +2,7 @@ import csv
 import json
 import sys
 from fractions import Fraction
+from typing import Any
 
 from rich.console import Console
 from rich.table import Table
@@ -125,6 +126,11 @@ def as_json(
                     )
                 )
     json.dump(data, sys.stdout, indent=4, sort_keys=True)
+
+
+def as_raw_json(entries: list[dict[str, Any]]) -> None:
+    """Output raw Harvest time entries as JSON (for use with harvest-kimai-importer)."""
+    json.dump(entries, sys.stdout, indent=2)
 
 
 def as_rich_table(

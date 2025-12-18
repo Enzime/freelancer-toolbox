@@ -91,9 +91,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--format",
         default="humanreadable",
-        choices=("humanreadable", "csv", "json", "table"),
+        choices=("humanreadable", "csv", "json", "raw-json", "table"),
         type=str,
-        help="Output format",
+        help="Output format (raw-json outputs unaggregated entries for harvest-kimai-importer)",
     )
     args = parser.parse_args()
     today = datetime.today()
@@ -177,6 +177,11 @@ def main() -> None:
     entries = get_time_entries(
         args.harvest_account_id, args.harvest_bearer_token, args.start, args.end
     )
+
+    # Handle raw-json format before aggregation
+    if args.format == "raw-json":
+        export.as_raw_json(entries)
+        return
 
     agency_rate = None
     if args.agency == "numtide":
