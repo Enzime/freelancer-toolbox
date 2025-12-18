@@ -91,9 +91,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--format",
         default="humanreadable",
-        choices=("humanreadable", "csv", "json", "raw-json", "table"),
+        choices=("humanreadable", "csv", "json", "table"),
         type=str,
-        help="Output format (raw-json outputs unaggregated entries for harvest-kimai-importer)",
+        help="Output format",
+    )
+    parser.add_argument(
+        "--no-aggregate",
+        action="store_true",
+        help="Output raw entries without aggregation (only works with --format json)",
     )
     args = parser.parse_args()
     today = datetime.today()
@@ -121,6 +126,10 @@ def parse_args() -> argparse.Namespace:
 
     if args.agency == "none" and not args.client:
         print("--client must be passed if agency is disabled", file=sys.stderr)
+        sys.exit(1)
+
+    if args.no_aggregate and args.format != "json":
+        print("--no-aggregate only works with --format json", file=sys.stderr)
         sys.exit(1)
 
     return args
@@ -178,9 +187,9 @@ def main() -> None:
         args.harvest_account_id, args.harvest_bearer_token, args.start, args.end
     )
 
-    # Handle raw-json format before aggregation
-    if args.format == "raw-json":
-        export.as_raw_json(entries)
+    # Handle non-aggregated JSON output
+    if args.no_aggregate:
+        json.dump(entries, sys.stdout, indent=2)
         return
 
     agency_rate = None
